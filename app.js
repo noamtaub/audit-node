@@ -7,14 +7,34 @@ const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost:27017/audit')
     .then(()=> console.log("connected to mongoose"))
     .catch((error) => console.log(error))
-
+const pingSchema = new mongoose.Schema({
+    payload: Object
+})
+const Ping = mongoose.model('ping', pingSchema)
 
 // App
 const app = express();
+app.get('/', (req, res) => {
+    //res.send("sdfdsfsd")
+    res.status(200).send({message: req.body})
+    }
+)
+app.post('/', async (req, res) => {
+    console.log(req.body);
+    let ping = new Ping({
+        payload: req.body
+    })
+
+    ping = await ping.save()
+
+    res.status(200).send({
+            message: ping
+        });
+})
 
 const sigHeaderName = 'X-Hub-Signature-256';
 const sigHashAlg = 'sha256';
-const secret = "ABCD1234";
+const secret = "ABC123";
 
 //
 // app.use(bodyParser.json(
@@ -29,7 +49,7 @@ const secret = "ABCD1234";
 
 
 // Set port
-const port = process.env.PORT || 1137;
+const port = process.env.PORT || 4567;
 app.set("port", port);
 
 // Database Setup
