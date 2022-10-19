@@ -8,7 +8,7 @@ router.get("/", function(req, res) {
 });
 
 router.post("/payload", async function(req, res) {
-    console.log(req.body)
+    console.log(req.body);
 
     // const payload = req.body;
     //
