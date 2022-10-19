@@ -11,10 +11,17 @@ mongoose.connect('mongodb://localhost:27017/audit')
 
 // App
 const app = express();
+app.post('/', (req, res) => {
+    console.log(req.body);
+
+    res.status(200).send({
+            message: "Webhook Event successfully logged"
+        });
+})
 
 const sigHeaderName = 'X-Hub-Signature-256';
 const sigHashAlg = 'sha256';
-const secret = "ABCD1234";
+const secret = "ABC123";
 
 //
 // app.use(bodyParser.json(
@@ -29,7 +36,7 @@ const secret = "ABCD1234";
 
 
 // Set port
-const port = process.env.PORT || 1137;
+const port = process.env.PORT || 4567;
 app.set("port", port);
 
 // Database Setup
