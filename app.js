@@ -7,15 +7,28 @@ const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost:27017/audit')
     .then(()=> console.log("connected to mongoose"))
     .catch((error) => console.log(error))
-
+const pingSchema = new mongoose.Schema({
+    payload: Object
+})
+const Ping = mongoose.model('ping', pingSchema)
 
 // App
 const app = express();
-app.post('/', (req, res) => {
+app.get('/', (req, res) => {
+    //res.send("sdfdsfsd")
+    res.status(200).send({message: req.body})
+    }
+)
+app.post('/', async (req, res) => {
     console.log(req.body);
+    let ping = new Ping({
+        payload: req.body
+    })
+
+    ping = await ping.save()
 
     res.status(200).send({
-            message: "Webhook Event successfully logged"
+            message: ping
         });
 })
 
