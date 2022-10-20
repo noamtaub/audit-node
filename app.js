@@ -1,8 +1,8 @@
 const express = require("express");
-const routes = require("./routes");
 require('core-js/stable');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
+const cors = require("cors")
 
 mongoose.connect('mongodb://localhost:27017/webhook')
     .then(() => console.log("connected to mongoose"))
@@ -11,6 +11,17 @@ mongoose.connect('mongodb://localhost:27017/webhook')
 // App
 const app = express();
 app.use(bodyParser.json())
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+
+
+    // Pass to next layer of middleware
+    next();
+});
+//app.use(cors({origin: 'http://localhost:3000'}));
 
 const port = process.env.PORT || 4567;
 app.set("port", port);
@@ -24,7 +35,6 @@ app.get('/', async (req, res) => {
     res.send(await Ping.find().sort('payload'))
 })
 app.post('/', async (req, res) => {
-    console.log('req.body', req.body);
     let ping = new Ping({
         payload: req.body
     })
