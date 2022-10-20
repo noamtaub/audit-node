@@ -12,16 +12,11 @@ mongoose.connect('mongodb://localhost:27017/webhook')
 const app = express();
 app.use(bodyParser.json())
 app.use(function (req, res, next) {
-
-    // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
-
-
-
-    // Pass to next layer of middleware
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
     next();
 });
-//app.use(cors({origin: 'http://localhost:3000'}));
+app.use(cors({origin: '*'}));
 
 const port = process.env.PORT || 4567;
 app.set("port", port);
