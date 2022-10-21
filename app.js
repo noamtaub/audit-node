@@ -1,3 +1,4 @@
+const dotenv = require('dotenv')
 const express = require("express");
 require('core-js/stable');
 const bodyParser = require('body-parser');
@@ -12,8 +13,6 @@ mongoose.connect('mongodb://localhost:27017/webhook')
 
 // App
 const app = express();
-
-
 app.use(bodyParser.json())
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,36 +26,34 @@ app.set("port", port);
 
 
 const Ping = mongoose.model('ping', new mongoose.Schema({
-    payload: Object
+    payload: Object,
+    path: String
 }))
 
-app.use(bodyParser.json());
-
-const secret = 'ABCD1234';
+dotenv.config()
 const sigHeaderName = 'X-Hub-Signature-256'
 const sigHashAlg = 'sha256';
 
 app.get('/', async (req, res) => {
-    res.send(await Ping.find().sort('payload'))
+    res.send(await Ping.find())
 })
-app.post('/',verifyPayload, async (req, res) => {
+app.post('/', verifyPayload, async (req, res) => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(req.body.pull_request.html_url);
 
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto(req.body.pull_request.url);
-
-        page.setViewport({ width: 300, height: 2000 })
-        await page.screenshot({ path: `screenshot${Date.now()}.png` });
-
-        await browser.close();
+    page.setViewport({width: 1040, height: 500})
+    const base64 = await page.screenshot({encoding: "base64"})
 
     let ping = new Ping({
-        payload: req.body
+        payload: req.body,
+        path: base64
     })
     ping = await ping.save()
     res.status(200).send({
         message: ping
     });
+    await browser.close();
 })
 
 app.use((err, req, res, next) => {
@@ -73,7 +70,7 @@ function verifyPayload(req, res, next) {
 
     const data = JSON.stringify(req.body);
     const sig = Buffer.from(req.get(sigHeaderName) || '', 'utf8');
-    const hmac = crypto.createHmac(sigHashAlg, secret);
+    const hmac = crypto.createHmac(sigHashAlg, process.env.SECRET);
     const digest = Buffer.from(`${sigHashAlg}=${hmac.update(data).digest('hex')}`, 'utf8');
     if (sig.length !== digest.length || !crypto.timingSafeEqual(digest, sig)) {
         return next(`Request body digest (${digest}) did not match ${sigHeaderName} (${sig})`);
