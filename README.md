@@ -3,7 +3,6 @@
 
 ## Quick start
 
-- [Download the latest release](https://nodejs.org/en/download/)
 - Clone the repo: `git clone https://github.com/noamtaub/audit-node.git`
 - Move to folder: `cd audit-node`
 - Install with [npm](https://www.npmjs.com/): `npm install`
