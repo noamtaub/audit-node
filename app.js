@@ -1,13 +1,13 @@
 const dotenv = require('dotenv')
-const express = require("express");
+const express = require('express');
 require('core-js/stable');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
-const cors = require("cors")
 const crypto = require('crypto');
 const puppeteer = require('puppeteer');
+dotenv.config()
 
-mongoose.connect('mongodb://localhost:27017/webhook')
+mongoose.connect('mongodb://localhost:27017/github')
     .then(() => console.log("connected to mongoose"))
     .catch((error) => console.log(error))
 
@@ -19,41 +19,35 @@ app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
     next();
 });
-app.use(cors({origin: '*'}));
+// app.use(cors({origin: '*'}));
 
 const port = process.env.PORT || 4567;
 app.set("port", port);
 
-
-const Ping = mongoose.model('ping', new mongoose.Schema({
-    payload: Object,
-    path: String
+const PullRequest = mongoose.model('pullrequest', new mongoose.Schema({
+    id: {type: Number, unique:true},
+    pullRequest: Object,
+    image: String
 }))
 
-dotenv.config()
 const sigHeaderName = 'X-Hub-Signature-256'
 const sigHashAlg = 'sha256';
 
 app.get('/', async (req, res) => {
-    res.send(await Ping.find())
-})
+    res.send(await PullRequest.find())
+});
+
 app.post('/', verifyPayload, async (req, res) => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(req.body.pull_request.html_url);
-
-    page.setViewport({width: 1040, height: 500})
-    const base64 = await page.screenshot({encoding: "base64"})
-
-    let ping = new Ping({
-        payload: req.body,
-        path: base64
+    const screenshot = await getScreenShotBase64(req.body.pull_request.html_url)
+    let pullRequest = new PullRequest({
+        id: req.body.pull_request.id,
+        pullRequest: req.body.pull_request,
+        image: screenshot
     })
-    ping = await ping.save()
+    pullRequest = await pullRequest.save()
     res.status(200).send({
-        message: ping
+        message: pullRequest
     });
-    await browser.close();
 })
 
 app.use((err, req, res, next) => {
@@ -76,6 +70,16 @@ function verifyPayload(req, res, next) {
         return next(`Request body digest (${digest}) did not match ${sigHeaderName} (${sig})`);
     }
     return next()
+}
+
+async function getScreenShotBase64(url) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(url);
+    page.setViewport({width: 1040, height: 500})
+    const screenshot =  await page.screenshot({encoding: "base64"})
+    await browser.close()
+    return screenshot;
 }
 
 app.listen(port, () => console.log(`Server running on localhost:${port}`));
