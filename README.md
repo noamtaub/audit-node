@@ -1,5 +1,4 @@
-# Getting Started with AudITech
-
+# This is the API server app and also the webhook
 
 ## Quick start
 
