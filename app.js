@@ -40,7 +40,7 @@ app.post('/', verifyPayload, async (req, res) => {
     const screenshot = await getScreenShotBase64(req.body.pull_request.html_url)
     let pullRequest = new PullRequest({
         pullRequest: req.body.pull_request,
-        image: screenshot
+        image: screenshot,
     })
     pullRequest = await pullRequest.save()
     res.status(200).send({
