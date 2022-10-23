@@ -25,7 +25,6 @@ const port = process.env.PORT || 4567;
 app.set("port", port);
 
 const PullRequest = mongoose.model('pullrequest', new mongoose.Schema({
-    id: {type: Number, unique:true},
     pullRequest: Object,
     image: String
 }))
@@ -40,7 +39,6 @@ app.get('/', async (req, res) => {
 app.post('/', verifyPayload, async (req, res) => {
     const screenshot = await getScreenShotBase64(req.body.pull_request.html_url)
     let pullRequest = new PullRequest({
-        id: req.body.pull_request.id,
         pullRequest: req.body.pull_request,
         image: screenshot
     })
