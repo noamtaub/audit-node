@@ -1,10 +1,9 @@
-# Getting Started with AudITech
-
+# This is the API server app and also the webhook
 
 ## Quick start
 
 - [Download the latest release](https://nodejs.org/en/download/)
-- Clone the repo: `git clone https://github.com/noamtaub/audit-node.git`
+- Clone the rpo: `git clone https://github.com/noamtaub/audit-node.git`
 - Move to folder: `cd audit-node`
 - Install with [npm](https://www.npmjs.com/): `npm install`
 - Connect to MongoDB Compass: [mongoDB](https://www.mongodb.com/try/download/compass)
@@ -17,6 +16,6 @@
 - Copy the link you get, and pase it [here](https://github.com/noamtaub/audit-node/settings/hooks/384620307) and click update webhook
 ![Alt text](/CaptureNgrok.PNG)
 ![Alt text](/CaptureWebhook.PNG)
-
-![Alt text](/CaptureMongoDB.PNG)
+ 
+![Alt text](/CaptureMongoDB.png)
 
